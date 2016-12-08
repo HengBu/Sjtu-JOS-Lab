@@ -512,9 +512,8 @@ page_realloc_npages(struct Page *pp, int old_n, int new_n)
 
 int
 page_realloc_npages_helper(struct Page **head, struct Page *pp, int old_n, int new_n){
-	//return 1 if succeeded
-	//return 0 if failed
-	if(*head == NULL) return 0;
+	if(*head == NULL) 
+		return 0;
 	int ele_num = 1;
 	struct Page *plow = *head;
 	struct Page *phigh = *head;
@@ -596,13 +595,15 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
 	}else{
 		if(!create) 
 			return NULL;
+		
 		struct Page *pp = page_alloc(ALLOC_ZERO);
+		
 		if(!pp) 
 			return NULL;
 		pp->pp_ref++;	//page table's pp_ref should be added here
 		//add pgtab to pgdir
 		*pde = page2pa(pp) | PTE_P | PTE_U | PTE_W;
-		pgtab = (pde_t*)page2kva(pp);
+		pgtab = (pte_t*)page2kva(pp);
 	}
 	return &(pgtab[PTX(va)]);
 }
@@ -625,7 +626,8 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 	while(size){
 		size -= PGSIZE;
 		pte_t *pte = pgdir_walk(pgdir,(void*)(va + size), 1);
-		if(pte)	*pte = (pa + size) | perm | PTE_P;
+		if(pte)	
+			*pte = (pa + size) | perm | PTE_P;
 	}
 }
 
@@ -663,8 +665,10 @@ page_insert(pde_t *pgdir, struct Page *pp, void *va, int perm)
 		page_remove(pgdir, va);	//tlb will be invalidated in it
 	}else{
 		pte = pgdir_walk(pgdir, va, 1);
-		if(!pte) return -E_NO_MEM;
-		else pp->pp_ref++;
+		if(!pte) 
+			return -E_NO_MEM;
+		else 
+			pp->pp_ref++;
 	}
 
 	*pte = page2pa(pp) | perm | PTE_P;
